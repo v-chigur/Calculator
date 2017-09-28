@@ -1,0 +1,63 @@
+class Stack:
+    def __init__(self):
+        self.items = []
+
+    def isEmpty(self):
+        return self.items == []
+
+    def push(self, item):
+        self.items.append(item)
+
+    def pop(self):
+        return self.items.pop()
+
+    def peek(self):
+        return self.items[-1]
+
+def calc(op, r, l):
+    result = {
+        '+': lambda x, y: x + y,
+        '-': lambda x, y: x - y,
+        '*': lambda x, y: x * y,
+        '/': lambda x, y: x / y,
+        '%': lambda x, y: x % y
+    }[op](l, r)
+    return result
+
+def RPE(str, n):
+    st = Stack()
+    op = Stack()
+    i = 0
+
+    while i < n:
+        if s[i] in [' ', '\n']:
+            continue
+        if s[i] == '(':
+            op.push(s[i])
+        elif s[i] == ')':
+            while op.peek() != '(':
+                st.push(calc(op.pop(), st.pop(), st.pop()))
+            op.pop()
+        elif s[i] in ['+', '-', '*', '/', '%']:
+            while not op.isEmpty() and prior(op.peek()) >= prior(s[i]):
+                st.push(calc(op.pop(), st.pop(), st.pop()))
+            op.push(s[i])
+        elif s[i].isdigit():
+            x, i = s[i], i + 1
+            while i < n and s[i].isdigit():
+                x += s[i]
+                i += 1
+            i -= 1
+            st.push(int(x))
+        i += 1
+
+    while not op.isEmpty():
+        st.push(calc(op.pop(), st.pop(), st.pop()))
+
+    return st.pop()
+
+def prior(op):
+    return 1 if op == '+' or op == '-' else 2 if op == '*' or op == '/' or op == '%' else -1
+
+s = '1+2+3*(4+5)/2'
+print(RPE(s, len(s)))
