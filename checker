@@ -1,0 +1,4 @@
+with open('input', 'r') as fin:
+    s = fin.readline()
+with open('output2', 'w') as fout:
+    fout.write(eval(s))

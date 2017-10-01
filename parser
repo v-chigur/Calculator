@@ -59,5 +59,7 @@ def RPE(str, n):
 def prior(op):
     return 1 if op == '+' or op == '-' else 2 if op == '*' or op == '/' or op == '%' else -1
 
-s = '1+2+3*(45+5)/2'
-print(RPE(s, len(s)))
+with open('input', 'r') as fin:
+    s = fin.readline()
+with open('output1', 'w') as fout:
+    fout.write(RPE(s, len(s)))
