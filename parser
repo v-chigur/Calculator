@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from decimal import Decimal
 
 class Stack:
     def __init__(self):
@@ -14,53 +15,78 @@ class Stack:
         return self.items.pop()
 
     def peek(self):
-        return self.items[-1]
+        return '' if self.items == [] else self.items[-1]
 
-def calc(op, r, l):
+def Rassoc(op):
+    return op == '^'
+
+def check(o, op):
+    if Rassoc(o):
+        return prior(op.peek()) > prior(o)
+    return not Rassoc(o) and prior(op.peek()) >= prior(o)
+
+def calc(op, st):
+    if op < 0:
+        l = st.pop()
+        op = chr(-op)
+        return {'+': l, '-': -l}[op]
+
+    r, l = st.pop(), st.pop()
     result = {
         '+': lambda x, y: x + y,
         '-': lambda x, y: x - y,
         '*': lambda x, y: x * y,
         '/': lambda x, y: x / y,
-        '%': lambda x, y: x % y
-    }[op](l, r)
+        '%': lambda x, y: x % y,
+        '^': lambda x, y: x ** y
+    }[chr(op)](l, r)
     return result
 
 def RPE(str, n):
     st = Stack()
     op = Stack()
-    i = 0
+    i, flag = 0, 1
 
     while i < n:
         if s[i] in [' ', '\n']:
             i += 1
             continue
         if s[i] == '(':
-            op.push(s[i])
+            op.push(ord(s[i]))
+            flag = 1
         elif s[i] == ')':
-            while op.peek() != '(':
-                st.push(calc(op.pop(), st.pop(), st.pop()))
+            while op.peek() != ord('('):
+                st.push(calc(op.pop(), st))
             op.pop()
-        elif s[i] in ['+', '-', '*', '/', '%']:
-            while not op.isEmpty() and prior(op.peek()) >= prior(s[i]):
-                st.push(calc(op.pop(), st.pop(), st.pop()))
-            op.push(s[i])
-        elif s[i].isdigit():
+            flag = 0
+        elif s[i] in ['+', '-', '*', '/', '%', '^']:
+            cur = ord(s[i])
+            if (flag):
+                cur = -cur
+            while not op.isEmpty() and check(cur, op):
+                st.push(calc(op.pop(), st))
+            op.push(cur)
+            flag = 1
+        elif s[i].isdigit() or s[i] == '.':
             x, i = s[i], i + 1
             while i < n and s[i].isdigit():
                 x += s[i]
                 i += 1
             i -= 1
-            st.push(int(x))
+            st.push(float(x))
+            flag = 0
         i += 1
 
     while not op.isEmpty():
-        st.push(calc(op.pop(), st.pop(), st.pop()))
+        st.push(calc(op.pop(), st))
 
-    return st.pop()
+    return Decimal(st.pop())
 
 def prior(op):
-    return 1 if op == '+' or op == '-' else 2 if op == '*' or op == '/' or op == '%' else -1
+    if op < 0:
+        return 5
+    res = {'^': 4, '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '(': -1, ')': -1}
+    return res[chr(op)]
 
 with open('input', 'r') as fin:
     s = fin.readline()
