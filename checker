@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+from decimal import Decimal
 
 with open('input', 'r') as fin:
     s = fin.readline().rstrip()
 with open('output2', 'w') as fout:
-    fout.write(str(eval(s)))
+    fout.write(str(Decimal(eval(s.replace('^', '**')))))

@@ -8,6 +8,7 @@ while (true); do
 	if [ "$DIFF" != "" ]
 	then
 	    cat input
+	    break
 	else
 		echo -e "ok"
 	fi

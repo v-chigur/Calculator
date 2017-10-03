@@ -3,8 +3,8 @@
 from random import *
 
 def num():
-    return str(randrange(100500))
+    return str(randrange(10))
 def op():
-    return choice(['-', '+', '*', '/', '%'])
+    return choice(['-', '+', '*', '/', '%', '^'])
 
 print(num() + op() + '(' + num() + op() + num() + ')' + op() + num())
