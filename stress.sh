@@ -1,12 +1,14 @@
 #!/bin/bash
 
 while (true); do
-	./gen > input
+	./gen.py > input
 	./parser < input > output1
 	./checker < input > output2
-	if (diff output1 output2); then
-		cat input
+	DIFF=$(diff output1 output2)
+	if [ "$DIFF" != "" ]
+	then
+	    cat input
 	else
-		break
+		echo -e "ok"
 	fi
 done

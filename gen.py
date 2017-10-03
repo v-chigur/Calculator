@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from random import *
 
 def num():
@@ -5,6 +7,4 @@ def num():
 def op():
     return choice(['-', '+', '*', '/', '%'])
 
-for i in range(10 ** 5):
-    for j in range(10):
-        print(num() + op() + '(' + num() + op() + num() + ')' + op() + num())
+print(num() + op() + '(' + num() + op() + num() + ')' + op() + num())
