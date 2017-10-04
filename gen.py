@@ -3,7 +3,7 @@
 from random import *
 
 def num():
-    return str(randrange(10))
+    return str(randrange(1, 100))
 def op():
     return choice(['-', '+', '*', '/', '%', '^'])
 def f():
