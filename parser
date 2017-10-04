@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 from decimal import Decimal
+from math import *
+import re
 
 class Stack:
     def __init__(self):
@@ -26,10 +28,12 @@ def check(o, op):
     return not Rassoc(o) and prior(op.peek()) >= prior(o)
 
 def calc(op, st):
-    if op < 0:
+    if type(op) == int and op < 0:
         l = st.pop()
         op = chr(-op)
         return {'+': l, '-': -l}[op]
+    elif type(op) != str:
+        return op(st.pop())
 
     r, l = st.pop(), st.pop()
     result = {
@@ -38,8 +42,9 @@ def calc(op, st):
         '*': lambda x, y: x * y,
         '/': lambda x, y: x / y,
         '%': lambda x, y: x % y,
-        '^': lambda x, y: x ** y
-    }[chr(op)](l, r)
+        '^': lambda x, y: x ** y,
+        'log': lambda x, y: log(x, y)
+    }[op](l, r)
     return result
 
 def RPE(str, n):
@@ -48,33 +53,51 @@ def RPE(str, n):
     i, flag = 0, 1
 
     while i < n:
-        if s[i] in [' ', '\n']:
+        if s[i] in [' ', '\n', ',']:
             i += 1
             continue
         if s[i] == '(':
-            op.push(ord(s[i]))
+            op.push(s[i])
             flag = 1
         elif s[i] == ')':
-            while op.peek() != ord('('):
+            while op.peek() != '(':
                 st.push(calc(op.pop(), st))
             op.pop()
             flag = 0
         elif s[i] in ['+', '-', '*', '/', '%', '^']:
-            cur = ord(s[i])
+            cur = s[i]
             if (flag):
-                cur = -cur
+                cur = -ord(cur)
             while not op.isEmpty() and check(cur, op):
                 st.push(calc(op.pop(), st))
             op.push(cur)
             flag = 1
-        elif s[i].isdigit() or s[i] == '.':
+        elif s[i].isdigit():
             x, i = s[i], i + 1
-            while i < n and s[i].isdigit():
+            while i < n and s[i] in '0123456789.':
                 x += s[i]
                 i += 1
             i -= 1
             st.push(float(x))
             flag = 0
+        elif ord(s[i]) >= 65 and ord(s[i]) <= 122:
+            y, i = s[i], i + 1
+            while i < n and re.match(r'[A-Za-z]', s[i]):
+                y += s[i]
+                i += 1
+            i -= 1
+            fs = {
+                'sin': sin,
+                'cos': cos,
+                'tan': tan,
+                'log': 'log',
+                'sqrt': sqrt,
+                'asin': asin,
+                'acos': acos,
+                'atan': atan
+            }
+            if y in fs:
+                op.push(fs[y])
         i += 1
 
     while not op.isEmpty():
@@ -83,10 +106,12 @@ def RPE(str, n):
     return Decimal(st.pop())
 
 def prior(op):
-    if op < 0:
+    if type(op) == int and op < 0:
         return 5
-    res = {'^': 4, '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '(': -1, ')': -1}
-    return res[chr(op)]
+    elif type(op) != str:
+        return 4
+    res = {'^': 4, '+': 1, '-': 1, '*': 2, '/': 2, '%': 2, '(': -1, ')': -1, 'log': 4}
+    return res[op]
 
 with open('input', 'r') as fin:
     s = fin.readline()
