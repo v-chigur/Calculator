@@ -27,6 +27,10 @@ def check(o, op):
         return prior(op.peek()) > prior(o)
     return not Rassoc(o) and prior(op.peek()) >= prior(o)
 
+def getVal(x):
+    print("don't be an asshole, tell the variable of ", x)
+    return float(input)
+
 def calc(op, st):
     if type(op) == int and op < 0:
         l = st.pop()
@@ -96,8 +100,11 @@ def RPE(str, n):
                 'acos': acos,
                 'atan': atan
             }
+
             if y in fs:
                 op.push(fs[y])
+            else:
+                st.push(getVal(y))
         i += 1
 
     while not op.isEmpty():
